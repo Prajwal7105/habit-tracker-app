@@ -62,3 +62,51 @@ export function buildMonthMatrix(year, month) {
   }
   return cells
 }
+
+export function addDays(date, n) {
+  const d = new Date(date)
+  d.setDate(d.getDate() + n)
+  return d
+}
+
+export function getWeekStart(date) {
+  const d = new Date(date)
+  d.setDate(d.getDate() - d.getDay())
+  d.setHours(0, 0, 0, 0)
+  return d
+}
+
+export function buildWeekDays(weekStart) {
+  return Array.from({ length: 7 }, (_, i) => {
+    const date = addDays(weekStart, i)
+    return { date, key: toDateKey(date) }
+  })
+}
+
+export function getWeekRangeLabel(weekStart) {
+  const weekEnd = addDays(weekStart, 6)
+  const sameMonthAndYear =
+    weekStart.getMonth() === weekEnd.getMonth() && weekStart.getFullYear() === weekEnd.getFullYear()
+  const startStr = weekStart.toLocaleDateString('default', { month: 'short', day: 'numeric' })
+  const endStr = sameMonthAndYear
+    ? weekEnd.toLocaleDateString('default', { day: 'numeric' })
+    : weekEnd.toLocaleDateString('default', { month: 'short', day: 'numeric' })
+  return `${startStr} – ${endStr}, ${weekEnd.getFullYear()}`
+}
+
+export const WEEK_VIEW_START_HOUR = 6
+export const WEEK_VIEW_END_HOUR = 23
+
+export function formatHourLabel(hour) {
+  const period = hour < 12 ? 'AM' : 'PM'
+  const h = hour % 12 || 12
+  return `${h} ${period}`
+}
+
+export function formatTimeLabel(time) {
+  if (!time) return ''
+  const [h, m] = time.split(':').map(Number)
+  const period = h < 12 ? 'AM' : 'PM'
+  const hour12 = h % 12 || 12
+  return `${hour12}:${pad(m)} ${period}`
+}

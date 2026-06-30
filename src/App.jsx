@@ -29,7 +29,7 @@ export default function App() {
   const [month, setMonth] = useState(now.getMonth())
 
   const [habitManagerOpen, setHabitManagerOpen] = useState(false)
-  const [activeDayKey, setActiveDayKey] = useState(null)
+  const [activeDay, setActiveDay] = useState(null)
 
   useEffect(() => {
     saveData(data)
@@ -85,6 +85,10 @@ export default function App() {
     setData(prev => ({ ...prev, notes: { ...prev.notes, [dateKey]: noteData } }))
   }
 
+  function openDay(dateKey, time) {
+    setActiveDay({ key: dateKey, time })
+  }
+
   function goToToday() {
     const n = new Date()
     setYear(n.getFullYear())
@@ -131,12 +135,14 @@ export default function App() {
         </div>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 pb-3 flex flex-wrap items-center justify-between gap-3">
           <TabNav tabs={TABS} active={activeTab} onChange={setActiveTab} />
-          <MonthNav
-            label={getMonthLabel(year, month)}
-            onPrev={() => changeMonth(-1)}
-            onNext={() => changeMonth(1)}
-            onToday={goToToday}
-          />
+          {activeTab !== 'calendar' && (
+            <MonthNav
+              label={getMonthLabel(year, month)}
+              onPrev={() => changeMonth(-1)}
+              onNext={() => changeMonth(1)}
+              onToday={goToToday}
+            />
+          )}
         </div>
       </header>
 
@@ -151,9 +157,7 @@ export default function App() {
           <TrackerGrid habits={habits} logs={logs} year={year} month={month} onToggle={toggleLog} />
         )}
 
-        {activeTab === 'calendar' && (
-          <CalendarView year={year} month={month} notes={notes} onSelectDay={setActiveDayKey} />
-        )}
+        {activeTab === 'calendar' && <CalendarView notes={notes} onSelectDay={openDay} />}
 
         {activeTab === 'stats' && (
           <StatsDashboard habits={habits} logs={logs} year={year} month={month} theme={theme} />
@@ -170,12 +174,13 @@ export default function App() {
         />
       )}
 
-      {activeDayKey && (
+      {activeDay && (
         <DayModal
-          dateKey={activeDayKey}
-          note={notes[activeDayKey]}
+          dateKey={activeDay.key}
+          note={notes[activeDay.key]}
+          initialTime={activeDay.time}
           onSave={saveNote}
-          onClose={() => setActiveDayKey(null)}
+          onClose={() => setActiveDay(null)}
         />
       )}
     </div>

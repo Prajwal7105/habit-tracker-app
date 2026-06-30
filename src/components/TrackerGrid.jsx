@@ -7,15 +7,18 @@ export default function TrackerGrid({ habits, logs, year, month, onToggle }) {
 
   return (
     <div className="bg-white rounded-xl border border-leaf-200 shadow-sm overflow-hidden dark:bg-slate-800 dark:border-slate-700">
-      <div className="overflow-x-auto">
+      <div className="overflow-auto max-h-[70vh]">
         <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="bg-leaf-600 text-white dark:bg-leaf-700">
-              <th className="sticky left-0 z-10 bg-leaf-600 px-4 py-3 text-left font-medium min-w-[150px] dark:bg-leaf-700">
+              <th className="sticky top-0 left-0 z-30 bg-leaf-600 px-4 py-3 text-left font-medium min-w-[150px] dark:bg-leaf-700">
                 Date
               </th>
               {habits.map(habit => (
-                <th key={habit.id} className="px-3 py-3 text-center font-medium min-w-[100px]">
+                <th
+                  key={habit.id}
+                  className="sticky top-0 z-20 bg-leaf-600 px-3 py-3 text-center font-medium min-w-[100px] dark:bg-leaf-700"
+                >
                   <span className="inline-flex items-center gap-1.5">
                     <span
                       className="w-2.5 h-2.5 rounded-full shrink-0"
@@ -25,7 +28,9 @@ export default function TrackerGrid({ habits, logs, year, month, onToggle }) {
                   </span>
                 </th>
               ))}
-              <th className="px-4 py-3 text-center font-medium min-w-[130px]">Daily Progress</th>
+              <th className="sticky top-0 z-20 bg-leaf-600 px-4 py-3 text-center font-medium min-w-[130px] dark:bg-leaf-700">
+                Daily Progress
+              </th>
             </tr>
           </thead>
           <tbody>

@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { generateId } from '../utils/id'
-import { parseDateKey } from '../utils/dates'
+import { parseDateKey, formatTimeLabel } from '../utils/dates'
 import Modal from './Modal'
 
-export default function DayModal({ dateKey, note, onSave, onClose }) {
+export default function DayModal({ dateKey, note, initialTime, onSave, onClose }) {
   const [text, setText] = useState(note?.text || '')
   const [tasks, setTasks] = useState(note?.tasks || [])
   const [newTask, setNewTask] = useState('')
+  const [newTaskTime, setNewTaskTime] = useState(initialTime || '09:00')
 
   const dateLabel = parseDateKey(dateKey).toLocaleDateString('default', {
     weekday: 'long',
@@ -14,6 +15,8 @@ export default function DayModal({ dateKey, note, onSave, onClose }) {
     month: 'long',
     day: 'numeric',
   })
+
+  const sortedTasks = [...tasks].sort((a, b) => (a.time || '').localeCompare(b.time || ''))
 
   function handleSave() {
     onSave(dateKey, { text, tasks })
@@ -23,7 +26,7 @@ export default function DayModal({ dateKey, note, onSave, onClose }) {
   function addTask() {
     const trimmed = newTask.trim()
     if (!trimmed) return
-    setTasks(prev => [...prev, { id: generateId('task'), text: trimmed, done: false }])
+    setTasks(prev => [...prev, { id: generateId('task'), text: trimmed, done: false, time: newTaskTime }])
     setNewTask('')
   }
 
@@ -56,15 +59,20 @@ export default function DayModal({ dateKey, note, onSave, onClose }) {
             Tasks
           </label>
           <div className="space-y-1.5 mb-2 max-h-40 overflow-y-auto">
-            {tasks.map(task => (
+            {sortedTasks.map(task => (
               <div key={task.id} className="flex items-center gap-2 group">
                 <input
                   type="checkbox"
                   checked={task.done}
                   onChange={() => toggleTask(task.id)}
                   style={{ accentColor: '#2f724a' }}
-                  className="w-4 h-4"
+                  className="w-4 h-4 shrink-0"
                 />
+                {task.time && (
+                  <span className="text-[10px] font-medium text-leaf-500 dark:text-leaf-400 shrink-0 w-16">
+                    {formatTimeLabel(task.time)}
+                  </span>
+                )}
                 <span
                   className={`flex-1 text-sm ${
                     task.done ? 'line-through text-leaf-400 dark:text-leaf-500' : 'text-leaf-800 dark:text-leaf-100'
@@ -83,13 +91,20 @@ export default function DayModal({ dateKey, note, onSave, onClose }) {
             ))}
             {tasks.length === 0 && <p className="text-xs text-leaf-400 dark:text-leaf-500">No tasks yet.</p>}
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <input
               value={newTask}
               onChange={e => setNewTask(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && addTask()}
               placeholder="Add a task…"
-              className="flex-1 rounded-lg border border-leaf-200 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-leaf-400 dark:border-slate-600 dark:bg-slate-700 dark:text-leaf-50 dark:placeholder-leaf-500"
+              className="flex-1 min-w-[8rem] rounded-lg border border-leaf-200 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-leaf-400 dark:border-slate-600 dark:bg-slate-700 dark:text-leaf-50 dark:placeholder-leaf-500"
+            />
+            <input
+              type="time"
+              value={newTaskTime}
+              onChange={e => setNewTaskTime(e.target.value)}
+              aria-label="Task time"
+              className="rounded-lg border border-leaf-200 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-leaf-400 dark:border-slate-600 dark:bg-slate-700 dark:text-leaf-50 [color-scheme:light] dark:[color-scheme:dark]"
             />
             <button
               onClick={addTask}
